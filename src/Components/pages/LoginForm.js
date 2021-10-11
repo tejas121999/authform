@@ -8,7 +8,7 @@ class LoginForm extends Component {
 
     handleSubmit = e => {
         e.preventDefault();
-        console.log('submit',this.state)
+        console.log('submited',this.state)
     }
 
     handleChange = ({currentTarget: input}) => {

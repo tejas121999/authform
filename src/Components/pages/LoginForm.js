@@ -1,52 +1,83 @@
 import React, { Component } from 'react'
+import Input from '../common/LoginInput';
 
 class LoginForm extends Component {
 
     state = {
-        account: { username: '', password: '' }
+        account: { username: '', password: '' },
+        errors: {}
+    }
+
+    validate = () => {
+
+        const errors = {};
+
+        const { account } = this.state;
+        if (account.username.trim() === '')
+            errors.username = 'Username is required...';
+        if (account.password.trim() === '')
+            errors.password = 'Password is required...';
+
+        return Object.keys(errors).length === 0 ? null : errors;
+    }
+
+    validateProperty = ({name, value}) => {
+        if (name === 'username'){
+            if (value.trim() === '') return 'Username is required...';
+            // ...
+        }
+
+        if (name === 'password'){
+            if (value.trim() === '') return 'Password is required...';
+            // ...
+        }
     }
 
     handleSubmit = e => {
         e.preventDefault();
-        console.log('submited',this.state)
+
+        const errors = this.validate();
+        console.log(errors);
+        this.setState({ errors: errors || {} });
+        if (errors) return
+
+        console.log('submited', this.state.account)
     }
 
-    handleChange = ({currentTarget: input}) => {
+    handleChange = ({ currentTarget: input }) => {
+        const errors = { ...this.state.errors };
+        const errorMmessage = this.validateProperty(input);
+        if (errorMmessage) errors[input.name] = errorMmessage;
+        else delete errors[input.name];
+
         const account = { ...this.state.account };
         account[input.name] = input.value;
         this.setState({ account });
     }
 
     render() {
-        
-        const { account } = this.state;
+
+        const { account, errors } = this.state;
 
         return (
             <div className='container'>
                 <h1>Login</h1>
                 <form onSubmit={this.handleSubmit}>
-                    <div className="mb-3" >
-                        <label htmlFor="username" class="form-label">Email address</label>
-                        <input
-                            value={account.username}
-                            onChange={this.handleChange}
-                            name="username"
-                            id="username"
-                            type="text"
-                            class="form-control"
-                        />
-                    </div>
-                    <div className="mb-3">
-                        <label htmlFor="password" class="form-label">Password</label>
-                        <input
-                            value={account.password}
-                            onChange={this.handleChange}
-                            name="password"
-                            id="password"
-                            type="text"
-                            class="form-control"
-                        />
-                    </div>
+                    <Input
+                        name="username"
+                        value={account.username}
+                        label="Username"
+                        onChange={this.handleChange}
+                        error={errors.username}
+                    />
+                    <Input
+                        name="password"
+                        value={account.password}
+                        label="Password"
+                        onChange={this.handleChange}
+                        error={errors.password}
+
+                    />
                     <button type="submit" class="btn btn-primary">Login</button>
                 </form>
             </div>

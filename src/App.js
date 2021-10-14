@@ -8,6 +8,7 @@ import LoginForm from './Components/pages/LoginForm'
 import Navbar from './Components/common/Navbar'
 import Home from './Components/pages/Home';
 import Customer from './Components/pages/Customer';
+import RegisterForm from './Components/pages/RegisterForm';
 
 class App extends Component {
   render() {
@@ -17,6 +18,7 @@ class App extends Component {
         <Switch>
           <Route exact path='/' component={Home} />
           <Route exact path='/login' component={LoginForm} />
+          <Route exact path='/register' component={RegisterForm}/>
           <Route exact path='/customer' component={Customer} />
         </Switch>
       </Router>

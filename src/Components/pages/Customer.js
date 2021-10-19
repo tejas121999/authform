@@ -1,6 +1,18 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 
+axios.interceptors.response.use(null, error => {
+    const expectedError =
+        error.response &&
+        error.response.status >= 400 &&
+        error.response.status < 500
+    if (!expectedError) {
+        console.log('Loggin the error', error)
+        alert("an unexpected error occure.")
+    }
+    return Promise.reject(error)
+})
+
 const Api = 'https://jsonplaceholder.typicode.com/users'
 
 export class Customer extends Component {
@@ -17,17 +29,39 @@ export class Customer extends Component {
     }
 
     handleAdd = async () => {
-        const add = { id: '1', name: 'tejas', username: 'tejas_12', email: 'tejas@gmail.com' }
+        const add = { name: 'tejas', username: 'tejas_12', email: 'tejas@gmail.com' }
         const { data: post } = await axios.post(Api, add)
-        console.log(post);
+        const posts = [post, ...this.state.posts];
+        this.setState({ posts })
+        console.log("Added", post);
     }
 
-    handleUpdate = post => {
-        console.log("update")
+    handleUpdate = async post => {
+        post.name = "update";
+        await axios.put(Api + "/" + post.id, post);
+
+        const posts = [...this.state.posts];
+        const index = posts.indexOf(post);
+        posts[index] = { ...post };
+        this.setState({ posts });
+        console.log("Update", post)
     }
 
-    handleDelete = post => {
-        console.log("delete")
+    handleDelete = async post => {
+        const ogPost = this.state.posts;
+        const posts = this.state.posts.filter(p => p.id !== post.id);
+        this.setState({ posts })
+        try {
+            await axios.delete(Api + '/' + post.id);
+            // throw new Error("")
+            // alert('sure you want to delete')
+        } catch (ex) {
+            if (ex.response && ex.response.status === 404)
+                alert("this post has already been deleted.")
+            // alert('not abel to delete')
+            this.setState({ posts: ogPost })
+        }
+        // console.log("Delete", post)
     }
 
     render() {

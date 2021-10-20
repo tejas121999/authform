@@ -1,19 +1,10 @@
 import React, { Component } from 'react'
-import axios from 'axios'
+import HTTP from '../services/httpServices'
+import config from '../../config.json'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
+import Sentry from '@sentry/react'
 
-axios.interceptors.response.use(null, error => {
-    const expectedError =
-        error.response &&
-        error.response.status >= 400 &&
-        error.response.status < 500
-    if (!expectedError) {
-        console.log('Loggin the error', error)
-        alert("an unexpected error occure.")
-    }
-    return Promise.reject(error)
-})
-
-const Api = 'https://jsonplaceholder.typicode.com/users'
 
 export class Customer extends Component {
 
@@ -23,14 +14,14 @@ export class Customer extends Component {
 
     async componentDidMount() {
         // promiss
-        const { data: posts } = await axios.get(Api)
+        const { data: posts } = await HTTP.get(config.ApiEndpoint)
         this.setState({ posts });
         console.log(posts)
     }
 
     handleAdd = async () => {
         const add = { name: 'tejas', username: 'tejas_12', email: 'tejas@gmail.com' }
-        const { data: post } = await axios.post(Api, add)
+        const { data: post } = await HTTP.post(config.ApiEndpoint, add)
         const posts = [post, ...this.state.posts];
         this.setState({ posts })
         console.log("Added", post);
@@ -38,7 +29,7 @@ export class Customer extends Component {
 
     handleUpdate = async post => {
         post.name = "update";
-        await axios.put(Api + "/" + post.id, post);
+        await HTTP.put(config.ApiEndpoint + "/" + post.id, post);
 
         const posts = [...this.state.posts];
         const index = posts.indexOf(post);
@@ -52,9 +43,9 @@ export class Customer extends Component {
         const posts = this.state.posts.filter(p => p.id !== post.id);
         this.setState({ posts })
         try {
-            await axios.delete(Api + '/' + post.id);
+            await HTTP.delete(config.ApiEndpoint + '/' + post.id);
             // throw new Error("")
-            // alert('sure you want to delete')
+            toast('post is delete')
         } catch (ex) {
             if (ex.response && ex.response.status === 404)
                 alert("this post has already been deleted.")
@@ -67,6 +58,7 @@ export class Customer extends Component {
     render() {
         return (
             <div className="container">
+                <ToastContainer />
                 <button type="button" class="btn btn-primary" onClick={this.handleAdd}>Add</button>
                 <table className="table table-bordered">
                     <thead>
